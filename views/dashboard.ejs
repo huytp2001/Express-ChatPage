@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document</title>
+</head>
+<body>
+    <div style="display: flex; align-items: center; gap: 25px;">
+        <a href="/dashboard" style="font-size: 35px; text-decoration: none; font-weight: bold; color: black">Chat app</a>
+        <input style="width: 20%; height: 27px;" id="search_field" type="text" placeholder="Search..">
+        <a style="font-size: 20px; text-decoration: none;" href="/user/page/<%= user.id %>"><%= user.username %></a>
+        <a href="/logout" style="font-size: 20px; color: black">Logout</a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 150px;">
+        <p style="font-size: 20px; font-weight: bold; margin-top: 10px; margin-bottom: 10px;">Chat</p>
+        <% if (typeof chat !== "undefined" ) { %>
+            <p style="font-size: 20px; font-weight: bold; margin: 0;"> <%= chat.username %> </p>
+        <% } %>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 30px;">
+        <div style="display: flex; flex-direction: column; gap: 15px; align-self: start;">
+            <% for (const friend of friend_list) { %>
+                <a style="font-size: 20px; color: blue;" href="/dashboard/show_chat/<%= friend.id %>"><%= friend.username %></a>
+            <% } %>
+        </div>
+        <% if (typeof chat !== 'undefined') { %>
+            <div style="display: flex; flex-direction: column; gap: 15px; align-self: start;">
+                <div id="chat_box" style="border: 1px solid black; width: 400px; height: 400px; overflow-y: scroll;">
+                    <% if (typeof messages != "undefined") { %>
+                        <% for (const message of messages) { %>
+                            <% if (message.sender == user.id) { %>
+                                <p>You: <%= message.message %></p>    
+                            <% } else { %>
+                                <p><%= chat.username %>: <%= message.message %></p>
+                            <% } %>
+                        <% } %>    
+                    <% } %>
+                </div>
+                <input style="height: 27px;" id="chat_input" type="text" placeholder="Enter..">
+            </div>
+        <% } %>
+    </div>
+
+</body>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+
+    var socket = io();
+
+    const searchInput = document.getElementById("search_field");
+    const chatInput = document.getElementById("chat_input");
+    const chatbox = document.getElementById("chat_box");
+    searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            if (searchInput.value !== '') {
+                window.location.href=`/search?keyword=${searchInput.value}`;
+            }
+        }
+    });
+    <% if (typeof chat !== "undefined") { %>
+        chatInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                if (chatInput.value !== '') {
+                    socket.emit("chat-message", `<%=user.id%>|<%=chat.id%>|${chatInput.value}`);
+                    chatInput.value = '';
+                }
+            }
+        })
+
+        socket.on('chat-message', (msg)=>{
+            const sub_string = msg.split('|');
+            // Check if sender is you
+            if (sub_string[0] == "<%=user.id%>") {
+                chatbox.innerHTML += `<p>You: ${sub_string[2]}</p>`;
+            }
+            if (sub_string[1] == "<%=user.id%>") {
+                chatbox.innerHTML += `<p><%=chat.username%>: ${sub_string[2]}</p>`;
+            }
+        })
+
+    <% } %>
+
+</script>
+</html>

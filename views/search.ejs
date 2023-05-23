@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document</title>
+</head>
+<body>
+    <div style="display: flex; align-items: center; gap: 25px;">
+        <a href="/dashboard" style="font-size: 35px; text-decoration: none; font-weight: bold; color: black">Chat app</a>
+        <input style="width: 20%; height: 27px;" id="search_field" type="text" placeholder="Search..">
+        <a style="font-size: 20px;" href="/user/page/<%= cr_user.id %>"><%= cr_user.username %></a>
+        <a href="/logout" style="font-size: 20px; color: black">Logout</a>
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+        <h3>Search: <%= typeof keyword !== 'undefined' ? keyword : '' %></h3>
+        <% for (const user of users) { %>
+            <% if (user.id != cr_user.id) { %>
+            <div style="display: flex; align-items: center; gap: 50px;">
+                <a style="font-size: 20px; text-decoration: none; color: black;" href="/user/page/<%= user.id %>"><%= user.username %></a>
+                <% if (user.friends.includes(cr_user.id)) { %>
+                    <a style="font-size: 20px; text-decoration: none;">Friend</a>
+                <% } else if (user.req_friends.includes(cr_user.id)) {%>
+                    <a style="font-size: 20px; color: red;" href="/search/cancel_add/<%= user.id %>">Cancel</a>
+                <% } else { %>
+                    <a style="font-size: 20px; color: blue;" href="/search/add_friend/<%= user.id %>">Add Friend</a>
+                <% } %>
+            </div>
+            <% } %>
+        <% } %>
+    </div> 
+    
+</body>
+<script>
+    const searchInput = document.getElementById("search_field");
+    searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            if (searchInput.value == '') {
+            } else {
+                window.location.href=`/search?keyword=${searchInput.value}`;
+            }
+        }
+    });
+</script>
+</html>

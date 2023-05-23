@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document</title>
+    <style>
+    </style>
+</head>
+<body>
+    <div style="display: flex; align-items: center; gap: 25px;">
+        <a href="/dashboard" style="font-size: 35px; text-decoration: none; font-weight: bold; color: black">Chat app</a>
+        <input style="width: 20%; height: 27px;" id="search_field" type="text" placeholder="Search..">
+        <a style="font-size: 20px; text-decoration: none;" href="/user/page/<%= user.id %>"><%= req.session.username %></a>
+        <a href="/logout" style="font-size: 20px; color: black">Logout</a>
+    </div>
+    
+    <div>
+        <% if (user.id == req.session.userId) { %>
+            <div style="display: flex; align-items: center; gap: 25px;">
+                <h2><%= user.username %></h2>
+                <a style="font-size: 20px; color: blue" href="/user/friend_list">Friend list (<%= user.friends.length %>)</a>
+                <a style="font-size: 20px; color: blue" href="/user/request_list">Add requests (<%= user.req_friends.length %>)</a> 
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <% if (typeof friend_list !== "undefined") { %>
+                    <% if (friend_list.length == 0) { %>
+                        <p stype="font-size: 25px; color: black; font-weight: bold;">No friends yet</p>
+                    <% } else { %>
+                        <% for (const friend of friend_list) { %>
+                            <div style="display: flex; align-items: center; gap: 25px;">
+                                <a style="font-size: 20px; text-decoration: none; color: black;" href="/user/page/<%= friend.id %>"><%= friend.username %></a>
+                                <a style="font-size: 20px; color: red;" href="/user/unfriend/<%= friend.id %>">Unfriend</a>
+                            </div>
+                        <% } %>
+                    <% } %>
+                <% } %> 
+                <% if (typeof request_list !== "undefined") { %>
+                    <% if (request_list.length == 0) { %>
+                        <p stype="font-size: 25px; color: black; font-weight: bold;">No requests yet</p>
+                    <% } else { %>
+                        <% for (const friend of request_list) { %>
+                            <div style="display: flex; align-items: center; gap: 25px;">
+                                <a style="font-size: 20px; text-decoration: none; color: black;" href="/user/page/<%= friend.id %>"><%= friend.username %></a>
+                                <a style="font-size: 20px; color: blue;" href="/user/accept_friend/<%= friend.id %>">Accept</a>
+                                <a style="font-size: 20px; color: red;" href="/user/reject_friend/<%= friend.id %>">Reject</a>
+                            </div>
+                        <% } %>
+                    <% } %>
+                <% } %>
+            </div>
+        <% } else { %>
+            <h2><%= user.username %></h2>
+            <% if (user.friends.includes(cr_user.id)) { %>
+                <a style="font-size: 20px; text-decoration: none;">Friend</a>
+            <% } else if (user.req_friends.includes(cr_user.id)) {%>
+                <a style="font-size: 20px; color: red;" href="/user/cancel_add/<%= user.id %>">Cancel</a>
+            <% } else { %>
+                <a style="font-size: 20px; color: blue;" href="/user/add_friend/<%= user.id %>">Add Friend</a>
+            <% } %>
+        <% } %>
+    </div>
+    
+</body>
+<script>
+    const searchInput = document.getElementById("search_field");
+    searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            if (searchInput.value == '') {
+            } else {
+                window.location.href=`/search?keyword=${searchInput.value}`;
+            }
+        }
+    });
+
+</script>
+</html>
