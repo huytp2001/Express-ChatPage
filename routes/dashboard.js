@@ -6,8 +6,15 @@ const Conversation = require("../models/conversation");
 
 // Redirect from login page to dashboard
 router.get('/', auth, async (req, res) => {
+    const userId = req.session.userId;
     try {
-        res.render("dashboard", {req: req});
+        const user = await User.findById(userId);
+        let friend_list = [];
+        for (const id of user.friends) {
+            const friend = await User.findById(id);
+            friend_list.push(friend);
+        }
+        res.render("dashboard", {user: user, friend_list: friend_list});
     } catch (err) {
         res.send(`Error on fetch friend list route: ${err.stack}`);
     }
